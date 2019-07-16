@@ -24,7 +24,7 @@ enum layers_idx {
 };
 
 enum custom_keycodes {
-  RGB_MYT = SAFE_RANGE
+  TG_DFLT = SAFE_RANGE
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -43,11 +43,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_LGUI, KC_LALT,                   _______, _______, _______,          _______, _______,                   _______, _______, _______   \
     ),
 [_FL] = LAYOUT( \
-        RESET,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, _______, KC_MRWD,  \
-        _______, _______, DF(_WL), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          KC_DEL,  KC_VOLU,  \
-        _______, _______, _______, _______, _______, _______, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, _______,                   _______, KC_VOLD,  \
-        _______, _______, _______, _______, _______, _______, _______, _______, DF(_BL), _______, _______, _______,          _______, _______, KC_MFFD,  \
-        _______, _______, _______,                   RGB_MYT, RGB_MYT, RGB_MYT,          _______, _______,                   _______, _______, _______   \
+        KC_POWER,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10, KC_F11, KC_F12,  KC_INS,  KC_DEL,  _______,  \
+        _______, _______, TG_DFLT, _______, _______, _______, _______, _______, _______, KC_SLCK, KC_BRK,  KC_UP,   _______,          _______, _______,  \
+        _______, KC_VOLD, KC_VOLU, KC_MUTE, KC_EJCT, _______, KC_PAST, KC_PSLS, KC_HOME, KC_PGUP, KC_LEFT, KC_RGHT,                   KC_PENT, _______,  \
+        _______, _______, _______, _______, _______, _______, _______, KC_PPLS, KC_PMNS, KC_END,  KC_PGDN, KC_DOWN,          _______, _______, _______,  \
+        RESET,   _______, _______,                   _______, _______, _______,          _______, RESET,                     _______, _______, _______   \
     ),
 };
 
@@ -122,16 +122,21 @@ uint32_t layer_state_set_user(uint32_t state) {
 // TODO: just messing around here. Maybe visualize all modifiers?
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case RGB_MYT:
-      if (record->event.pressed) {
-        add_hsv_pulse(255);
+    case TG_DFLT:
+      if (record->event.pressed) break;
+      switch (biton32(default_layer_state)) {
+        case _WL:
+          set_single_persistent_default_layer(_BL);
+          return false;
+        case _BL:
+        default:
+          set_single_persistent_default_layer(_WL);
+          return false;
       }
       break;
     default:
-      if (record->event.pressed) {
-      } else {
-        add_hsv_pulse(55);
-      }
+      if (record->event.pressed) break;
+      add_hsv_pulse(55);
       break;
   }
   return true;
