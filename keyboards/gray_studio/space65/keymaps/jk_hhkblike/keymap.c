@@ -54,31 +54,32 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 static uint16_t hsv_pulse_last_update;
 static uint8_t hsv_pulse_power;
 static uint8_t hsv_pulse_current;
-
 static uint8_t hsv_base_value;
+static uint8_t hsv_min_value;
 
 void matrix_init_user(void) {
-  hsv_base_value = 28;
+  hsv_base_value = 235;
+  hsv_min_value = 25;
   hsv_pulse_current = hsv_base_value;
-  hsv_pulse_power = hsv_base_value + 10;
+  hsv_pulse_power = 0;
   hsv_pulse_last_update = timer_read();
 }
 
 void update_hsv_pulse(void) {
   // Pulse power decays over time
-  if (hsv_pulse_power > hsv_base_value) {
-    hsv_pulse_power = hsv_pulse_power - 4;
-  }
+  int power_delta = hsv_base_value - hsv_pulse_power;
+  hsv_pulse_power = hsv_pulse_power + power_delta/abs(power_delta) * 3;
 
   // Color fades towards target
   int pulse_delta = hsv_pulse_power - hsv_pulse_current;
-  hsv_pulse_current = hsv_pulse_current + 0.1 * pulse_delta;
-  rgblight_sethsv_slave(hsv_pulse_current, 230, 230);
+  hsv_pulse_current = hsv_pulse_current + pulse_delta * 0.3;
+
+  rgblight_sethsv_slave(28, hsv_pulse_current, 230);
 }
 
 void add_hsv_pulse(uint8_t power) {
-  uint16_t sum = hsv_base_value + hsv_pulse_power + power;
-  if (sum > 255) hsv_pulse_power = 255;
+  int sum = hsv_pulse_power - power;
+  if (sum < hsv_min_value) hsv_pulse_power = hsv_min_value;
   else hsv_pulse_power = (uint8_t) sum;
 }
 
@@ -129,7 +130,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     default:
       if (record->event.pressed) {
       } else {
-        add_hsv_pulse(2);
+        add_hsv_pulse(55);
       }
       break;
   }
