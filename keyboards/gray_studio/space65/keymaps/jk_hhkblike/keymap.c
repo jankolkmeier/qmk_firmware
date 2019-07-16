@@ -51,6 +51,45 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
+static uint16_t hsv_pulse_last_update;
+static uint8_t hsv_pulse_power;
+static uint8_t hsv_pulse_current;
+
+static uint8_t hsv_base_value;
+
+void matrix_init_user(void) {
+  hsv_base_value = 28;
+  hsv_pulse_current = hsv_base_value;
+  hsv_pulse_power = hsv_base_value + 10;
+  hsv_pulse_last_update = timer_read();
+}
+
+void update_hsv_pulse(void) {
+  // Pulse power decays over time
+  if (hsv_pulse_power > hsv_base_value) {
+    hsv_pulse_power = hsv_pulse_power - 4;
+  }
+
+  // Color fades towards target
+  int pulse_delta = hsv_pulse_power - hsv_pulse_current;
+  hsv_pulse_current = hsv_pulse_current + 0.1 * pulse_delta;
+  rgblight_sethsv_slave(hsv_pulse_current, 230, 230);
+}
+
+void add_hsv_pulse(uint8_t power) {
+  uint16_t sum = hsv_base_value + hsv_pulse_power + power;
+  if (sum > 255) hsv_pulse_power = 255;
+  else hsv_pulse_power = (uint8_t) sum;
+}
+
+void matrix_scan_user(void) {
+  if (timer_elapsed(hsv_pulse_last_update) > 20) {
+    hsv_pulse_last_update = timer_read();
+    update_hsv_pulse();
+  }
+}
+
+
 // Set default color etc. at startup
 void keyboard_post_init_user(void) {
   rgblight_enable();
@@ -84,17 +123,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case RGB_MYT:
       if (record->event.pressed) {
-        rgblight_sethsv_slave(102, 230, 230);
-      } else {
-        rgblight_sethsv_slave( 28, 230, 230);
+        add_hsv_pulse(255);
       }
       break;
-    case KC_SPC:
-    case KC_ENT:
+    default:
       if (record->event.pressed) {
-        rgblight_sethsv_slave(102, 230, 230);
       } else {
-        rgblight_sethsv_slave( 28, 230, 230);
+        add_hsv_pulse(2);
       }
       break;
   }
