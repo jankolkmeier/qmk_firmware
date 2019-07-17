@@ -1,13 +1,13 @@
 # My hhkb-like layout for space65
 
-LED's are animated, master LED's show layer information, slave LEDs lighten up while typing.
+## Keymap
+- Pretty much exactly HHKB (with the left/right-most modifiers on bottom row being FN keys)
+- Right cluster is ESC,PGUP,PGDN,FN
+- FN + W toggles default layer for windows/mac modifiers (this is persistent!)
+- FN + FN => QMK Reset
 
-Right cluster is esc/pgup/dn/fn
-
-ANSI backslash is backspace, and the default backspace key is split for backslash & grave.
-
-Capslock is cmd/control.
-
-FN + W => toggle windows/mac modifiers (master led toggles between gold and orange)
-FN + FN => Reset (master light turns pink)
+## RGB LEDs
+- master LED's show layer color
+- slave LEDs lighten up / desaturate to white  while typing.
+- LED's are animated using a little smoothing engine (vvv.h)
 

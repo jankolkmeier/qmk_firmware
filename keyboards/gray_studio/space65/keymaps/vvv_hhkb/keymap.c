@@ -79,21 +79,20 @@ void keyboard_post_init_user(void) {
   rgblight_enable();
   rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
   rgblight_sethsv(1, 1, 1);
-  vvv_smooth_set_target(layer_hue, layer_hues[biton32(eeconfig_read_default_layer())]);
 }
 
 void matrix_init_user(void) {
   // Setup smoothing engine
   vvv_smooth_init(total_brightness, 0, 230, 0, 230, 0.035);
   vvv_smooth_init(type_pulse, 235, 235, 80, 255, 0.1);
-  vvv_smooth_init(layer_hue, 0,  slave_hue, 1, 255, 0.15);
+  vvv_smooth_init(layer_hue, 0, layer_hues[biton32(eeconfig_read_default_layer())], 1, 255, 0.15);
 }
 
 void matrix_scan_user(void) {
   // the smoothing engine will update at the defined frequency... if it updates,
   // the function returns true and we adjust the behavior further:
   if (vvv_smooth_update()) {
-    vvv_smooth_add_target(type_pulse, 4);
+    vvv_smooth_add_target(type_pulse, 4); // over time, the type-pulse-light resaturates
     rgblight_sethsv_master(vvv_get_val(layer_hue), 235, vvv_get_val(total_brightness));
     rgblight_sethsv_slave(slave_hue, vvv_get_val(type_pulse), vvv_get_val(total_brightness));
   }
@@ -115,8 +114,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case VVV_RST: // RESET THE KEYBOARD
       if (record->event.pressed) break;
-      rgblight_sethsv_master(245, 235, 235);
-      rgblight_sethsv_slave(1, 0, 0);
+      rgblight_sethsv_master(248, 235, 235);
+      rgblight_sethsv_slave(0, 0, 0);
       reset_keyboard();
       return false;
     case VVV_DFT: // TOGGLE DEFAULT LAYER (TODO: more elegant solution here)
