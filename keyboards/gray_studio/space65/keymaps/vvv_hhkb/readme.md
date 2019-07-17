@@ -1,4 +1,4 @@
-# The my hhkb-like layout for space65
+# My hhkb-like layout for space65
 
 LED's are animated, master LED's show layer information, slave LEDs lighten up while typing.
 
