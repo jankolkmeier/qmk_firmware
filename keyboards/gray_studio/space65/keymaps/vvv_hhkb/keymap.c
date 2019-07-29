@@ -29,11 +29,11 @@ enum vvv_smooth_vals {
 };
 
 // Color of the slave light
-const uint8_t slave_hue = 23;
+const uint8_t slave_hue = 30;
 // Color of the layers: there has to be one number for each layer!
 const uint8_t layer_hues[] = {
-    23,  // _BL
-    16,  // _WL
+    30,  // _BL
+    10,  // _WL
     100  // _FL
 };
 
@@ -45,12 +45,13 @@ enum layers_idx {
 
 enum custom_keycodes {
   VVV_DFT = SAFE_RANGE,
-  VVV_RST
+  VVV_RST,
+  VVV_STY
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_BL] = LAYOUT( \
-        KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL, KC_BSLS,  KC_GRV,  KC_ESC,   \
+        KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL, KC_BSLS,  KC_GRV,  VVV_STY,   \
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,         KC_BSPC,  KC_PGUP,  \
         KC_LGUI, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,                   KC_ENT,  KC_PGDN,  \
         KC_LSFT, KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,         KC_RSFT,   KC_UP,  MO(_FL),  \
@@ -117,6 +118,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       rgblight_sethsv_master(248, 235, 235);
       rgblight_sethsv_slave(0, 0, 0);
       reset_keyboard();
+      return false;
+    case VVV_STY:
+      if (record->event.pressed) break;
+      SEND_STRING(SS_LCTRL(SS_LSFT(SS_LGUI("n"))));
       return false;
     case VVV_DFT: // TOGGLE DEFAULT LAYER (TODO: more elegant solution here)
       if (record->event.pressed) break;
